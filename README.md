@@ -1,4 +1,4 @@
-a wrapper for the library moonchart
+a wrapper for the library moonchart  
 for easier conversion between charts
 
 based off of https://github.com/nebulazorua/sm-to-fnf  
