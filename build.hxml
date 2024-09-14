@@ -1,0 +1,9 @@
+--class-path source
+--dce no
+--cpp bin
+--main Main
+-lib mcli
+-lib moonchart
+-D windows
+-D PLATFORM=windows
+-D HAXE_OUTPUT_FILE=ChartConverter
