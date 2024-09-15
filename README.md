@@ -24,3 +24,9 @@ you can just add a , to `[chartFile]` and then write the metadata path
 ```batch
 [exeName] [chartFile,metadataFile] [fromFormat] [toFormat] [difficulty]
 ```
+
+example:  
+```batch
+ChartConverter blammed-chart-pico.json,blammed-metadata-pico.json FNF_VSLICE STEPMANIA Hard
+ChartConverter its-a-me-hard.json FNF_LEGACY STEPMANIA hard
+```
