@@ -9,3 +9,15 @@ in order to compile you need
 [moonchart](https://github.com/MaybeMaru/moonchart) (git)  
 [hxcpp](https://lib.haxe.org/p/hxcpp/)  
 haxe 4.3 at the least  
+
+how to use:  
+```batch
+[exeName] [chartFile] [fromFormat] [toFormat] [difficulty]
+```
+
+if there's a metadata to parse too   
+you can just add a , to `[chartFile]` and then write the metadata path
+
+```batch
+[exeName] [chartFile,metadataFile] [fromFormat] [toFormat] [difficulty]
+```
