@@ -33,7 +33,16 @@ class Main extends mcli.CommandLine {
 
 		// get the formats
 		var oldFormatData:FormatData = FormatDetector.getFormatData(from);
+		if (oldFormatData == null) {
+			Sys.println('Format "$from" does not exist.');
+			return;
+		}
+
 		var newFormatData:FormatData = FormatDetector.getFormatData(to);
+		if (newFormatData == null) {
+			Sys.println('Format "$to" does not exist.');
+			return;
+		}
 
 		var metadata:String = null;
 		var files:Array<String> = [null, null];
@@ -61,22 +70,27 @@ class Main extends mcli.CommandLine {
 		// finally start converting
 		Sys.println('Converting...');
 
-		var fromFile:BasicFormat<{}, {}> = Type.createInstance(oldFormatData.handler, []).fromFile(files[0], files[1], diff);
-		var toFile:BasicFormat<{}, {}> = Type.createInstance(newFormatData.handler, []).fromFormat(fromFile, diff);
+		try {
+			var fromFile:BasicFormat<{}, {}> = Type.createInstance(oldFormatData.handler, []).fromFile(files[0], files[1], diff);
+			var toFile:BasicFormat<{}, {}> = Type.createInstance(newFormatData.handler, []).fromFormat(fromFile, diff);
 
-		final converted:FormatStringify = toFile.stringify();
+			final converted:FormatStringify = toFile.stringify();
 
-		final chartFilename:String = 'converted-chart.${newFormatData.extension}';
-		final metadataFilename:String = 'converted-metadata.${newFormatData.metaFileExtension}';
+			final chartFilename:String = 'converted-chart.${newFormatData.extension}';
+			final metadataFilename:String = 'converted-metadata.${newFormatData.metaFileExtension}';
 
-		// save the chart
-		File.saveContent(chartFilename, converted.data);
-		Sys.println('Chart saved! "$chartFilename"');
+			// save the chart
+			File.saveContent(chartFilename, converted.data);
+			Sys.println('Chart saved! "$chartFilename"');
 
-		// save the metadata if there is one
-		if (newFormatData.hasMetaFile == TRUE) {
-			File.saveContent(metadataFilename, converted.meta);
-			Sys.println('Metadata saved! "$metadataFilename"');
+			// save the metadata if there is one
+			if (newFormatData.hasMetaFile == TRUE) {
+				File.saveContent(metadataFilename, converted.meta);
+				Sys.println('Metadata saved! "$metadataFilename"');
+			}
+		} catch(e:haxe.Exception) {
+			Sys.println('Error occured while processing chart:\n$e');
+			Sys.exit(0);
 		}
 	}
 
