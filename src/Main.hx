@@ -31,8 +31,6 @@ class Main extends mcli.CommandLine {
 			diff = defaultDiff;
 		}
 
-		Sys.println(FormatDetector.getList());
-
 		// get the formats
 		var oldFormatData:FormatData = FormatDetector.getFormatData(from);
 		var newFormatData:FormatData = FormatDetector.getFormatData(to);
