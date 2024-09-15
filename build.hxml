@@ -1,4 +1,4 @@
---class-path source
+--class-path src
 --dce no
 --cpp bin
 --main Main
