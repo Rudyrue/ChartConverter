@@ -16,24 +16,33 @@ class Main extends mcli.CommandLine {
 	var from:ChartFile = {};
 	var to:ChartFile = {};
 
-	// assumes the end-user won't put `.chartExtension` 
-	// when inputting the chart and metadata file
-	var assumeFileExtensions:Bool = true;
+	var oldChartFile:String;
+	var oldMetadataFile:String;
 
-	public function runDefault(?chart:String, ?parseFrom:String, ?convertTo:String, ?difficulty:String) {
+	var newChartFile:String = 'converted-chart';
+	var newMetadataFile:String = 'converted-metadata';
+
+	public function runDefault() {
 		FormatDetector.getList();
 
-		Sys.println('Converting...\n');
+		// grab the chart
+		Sys.println('Chart file:');
+		var chart:String = waitForInput();
 
-		// in case the user forgets an arg when calling the executable
-		// just basic error handling
-		if (chart == null) {
-			Sys.println('No file(s) specified.');
+		if (chart.length == 0) {
+			Sys.println('No chart file was specified.');
 			return;
 		}
-	
-		// load the format to parse from
-		if (parseFrom == null) {
+
+		// grab the metadata
+		Sys.println('Metadata file: (leave blank if there\'s none)');
+		var metadata:String = waitForInput();
+
+		// grab the old format
+		Sys.println('Format to parse from:');
+		var parseFrom:String = waitForInput();
+
+		if (parseFrom.length == 0) {
 			Sys.println('No format to parse from was specified.');
 			return;
 		}
@@ -44,8 +53,33 @@ class Main extends mcli.CommandLine {
 			return;
 		}
 
-		// load the format to convert to
-		if (convertTo == null) {
+		// do file checks after we grab the old format
+		// because of file extensions
+		oldChartFile = '$chart.${from.formatData.extension}';
+		
+		if (!FileSystem.exists(oldChartFile)) {
+			Sys.println('The chart file "$oldChartFile" doesn\'t exist.');
+			return;
+		}
+
+		oldMetadataFile = metadata.length == 0 ? null : '$metadata.${from.formatData.metaFileExtension}';
+		if (from.formatData.hasMetaFile == TRUE) {
+			if (oldMetadataFile == null) {
+				Sys.println('The format you\'re parsing from requires a metadata file, please specify one.');
+				return;
+			}
+
+			if (!FileSystem.exists(oldMetadataFile)) {
+				Sys.println('The metadata file "$oldMetadataFile" doesn\'t exist.');
+				return;
+			}
+		}
+
+		// grab the format to convert to
+		Sys.println('Format to convert to:');
+		var convertTo:String = waitForInput();
+
+		if (convertTo.length == 0) {
 			Sys.println('No format to convert to was specified.');
 			return;
 		}
@@ -56,67 +90,51 @@ class Main extends mcli.CommandLine {
 			return;
 		}
 
-		if (difficulty == null) {
+		// set the new file's extensions
+		newChartFile += '.${to.formatData.extension}';
+		newMetadataFile += '.${to.formatData.metaFileExtension}';
+
+		// grab the difficulty
+		Sys.println('Difficulty:');
+		var difficulty:String = waitForInput();
+
+		if (difficulty.length == 0) {
 			Sys.println('No difficulty was specified.');
 			return;
 		}
 
-		/////////////////////////////////////////////////////////////////////////////////////////////
-
-		var files:Array<String> = [];
-
-		// assume that there was a metadata file attached
-		if (chart.contains(',')) files = chart.split(',');
-		else files = [chart, null];
-
-		if (assumeFileExtensions) {
-			files[0] = '${files[0]}.${from.formatData.extension}';
-
-			if (files[1] != null) {
-				files[1] = '${files[1]}.${from.formatData.metaFileExtension}';
-			}
-		}
-
-		// then check if the files exist
-		if (!FileSystem.exists(files[0])) {
-			Sys.println('The chart file "${files[0]}" doesn\'t exist.');
-			return;
-		}
-
-		if (from.formatData.hasMetaFile == TRUE) {
-			if (files[1] == null) {
-				Sys.println('The format you\'re parsing from requires a metadata file, please specify one.');
-				return;
-			}
-
-			if (!FileSystem.exists(files[1])) {
-				Sys.println('The metadata file "${files[1]}" doesn\'t exist.');
-				return;
-			}
-		}
-
 		// finally start converting
 		try {
-			from.parser = Type.createInstance(from.formatData.handler, []).fromFile(files[0], files[1], difficulty);
+			Sys.println('Converting...');
+
+			from.parser = Type.createInstance(from.formatData.handler, []).fromFile(oldChartFile, oldMetadataFile, difficulty);
 			to.parser = Type.createInstance(to.formatData.handler, []).fromFormat(from.parser, difficulty);
 
-			final chartFileName:String = 'converted-chart.${to.formatData.extension}';
-			final metadataFileName:String = 'converted-metadata.${to.formatData.metaFileExtension}';
 			final converted:FormatStringify = to.parser.stringify();
 
 			// save the chart
-			File.saveContent(chartFileName, converted.data);
-			Sys.println('Chart saved! "$chartFileName"');
+			File.saveContent(newChartFile, converted.data);
+			Sys.println('Chart saved! "$newChartFile"');
 
 			// save the metadata if the format supports it
 			if (to.formatData.hasMetaFile == TRUE || to.formatData.hasMetaFile == POSSIBLE) {
-				File.saveContent(metadataFileName, converted.meta);
-				Sys.println('Metadata saved! "$metadataFileName"');
+				File.saveContent(newMetadataFile, converted.meta);
+				Sys.println('Metadata saved! "$newMetadataFile"');
 			}
+
+			// keep the window open for 3 seconds
+			// so that the user can see the file names
+			Sys.sleep(2);
 		} catch(e:haxe.Exception) {
-			Sys.println('Error occured while processing chart:\n$e');
+			Sys.println('Error occured while processing chart:\n\n$e');
 			Sys.exit(0);
 		}
+	}
+
+	inline static function waitForInput():String {
+		final input:String = Sys.stdin().readLine().toString();
+		Sys.println('');
+		return input;
 	}
 
 	static public function main():Void new mcli.Dispatch(Sys.args()).dispatch(new Main());
