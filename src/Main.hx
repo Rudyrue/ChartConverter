@@ -12,17 +12,17 @@ typedef ChartFile = {
 	var ?parser:BasicFormat<{}, {}>;
 }
 
-class Main extends mcli.CommandLine {
-	var from:ChartFile = {};
-	var to:ChartFile = {};
+class Main {
+	static var from:ChartFile = {};
+	static var to:ChartFile = {};
 
-	var oldChartFile:String;
-	var oldMetadataFile:String;
+	static var oldChartFile:String;
+	static var oldMetadataFile:String;
 
-	var newChartFile:String = 'converted-chart';
-	var newMetadataFile:String = 'converted-metadata';
+	static var newChartFile:String = 'converted-chart';
+	static var newMetadataFile:String = 'converted-metadata';
 
-	public function runDefault() {
+	public static function main() {
 		FormatDetector.getList();
 
 		// grab the chart
@@ -136,6 +136,4 @@ class Main extends mcli.CommandLine {
 		Sys.println('');
 		return input;
 	}
-
-	static public function main():Void new mcli.Dispatch(Sys.args()).dispatch(new Main());
 }
