@@ -103,6 +103,8 @@ class Main {
 			return;
 		}
 
+		var errorOccured:Bool = false;
+
 		// finally start converting
 		try {
 			Sys.println('Converting...');
@@ -122,13 +124,15 @@ class Main {
 				Sys.println('Metadata saved! "$newMetadataFile"');
 			}
 
-			// keep the window open for 3 seconds
-			// so that the user can see the file names
-			Sys.sleep(2);
 		} catch(e:haxe.Exception) {
 			Sys.println('Error occured while processing chart:\n\n$e');
-			Sys.exit(0);
+			errorOccured = true;
 		}
+
+		// keep the window open for 2 seconds
+		// so that the user can see the possible error/file names
+		Sys.sleep(2);
+		if (errorOccured) Sys.exit(0);
 	}
 
 	inline static function waitForInput():String {
