@@ -1,0 +1,12 @@
+--class-path src
+--dce no
+--cpp export
+--main Main
+-lib moonchart
+-D windows
+-D PLATFORM=windows
+-D HAXE_OUTPUT_FILE=ChartConverter
+
+-D HXCPP_CHECK_POINTER
+-D HXCPP_STACK_TRACE
+-D HXCPP_STACK_LINE
