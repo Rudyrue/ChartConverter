@@ -1,5 +1,5 @@
 --class-path src
---dce std
+--dce full
 --cpp export
 --main Main
 -lib moonchart
