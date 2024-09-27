@@ -10,3 +10,5 @@
 -D HXCPP_CHECK_POINTER
 -D HXCPP_STACK_TRACE
 -D HXCPP_STACK_LINE
+
+--cmd haxe --run MoveFile.hx
