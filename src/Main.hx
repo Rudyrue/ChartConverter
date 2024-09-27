@@ -94,6 +94,8 @@ class Main {
 			close('No difficulty was specified.');
 		}
 
+		var errorOccured:Bool = false;
+
 		// finally start converting
 		try {
 			Sys.println('Converting...');
@@ -113,9 +115,12 @@ class Main {
 				Sys.println('Metadata saved! "$newMetadataFile"');
 			}
 
-		} catch(e:haxe.Exception) Sys.println('Error occured while processing chart:\n\n$e');
-		
-		close();
+		} catch(e:haxe.Exception) {
+			Sys.println('Error occured while processing chart:\n\n$e');
+			errorOccured = true;
+		}
+
+		close(errorOccured ? 5 : 2);
 	}
 
 	inline static function waitForInput():String {
@@ -124,9 +129,9 @@ class Main {
 		return input;
 	}
 
-	static function close(?output:String) {
+	static function close(?output:String, ?secondsToWait:Float = 5) {
 		if (output != null) Sys.println(output);
-		Sys.sleep(5);
+		Sys.sleep(secondsToWait);
 		Sys.exit(0);
 	}
 }
