@@ -30,8 +30,7 @@ class Main {
 		var chart:String = waitForInput();
 
 		if (chart.length == 0) {
-			Sys.println('No chart file was specified.');
-			return;
+			close('No chart file was specified.');
 		}
 
 		// grab the metadata
@@ -43,14 +42,12 @@ class Main {
 		var parseFrom:String = waitForInput();
 
 		if (parseFrom.length == 0) {
-			Sys.println('No format to parse from was specified.');
-			return;
+			close('No format to parse from was specified.');
 		}
 
 		from.formatData = FormatDetector.getFormatData(parseFrom);
 		if (from.formatData == null) {
-			Sys.println('Format "$parseFrom" doesn\'t exist.');
-			return;
+			close('Format "$parseFrom" doesn\'t exist.');
 		}
 
 		// do file checks after we grab the old format
@@ -58,20 +55,17 @@ class Main {
 		oldChartFile = '$chart.${from.formatData.extension}';
 		
 		if (!FileSystem.exists(oldChartFile)) {
-			Sys.println('The chart file "$oldChartFile" doesn\'t exist.');
-			return;
+			close('The chart file "$oldChartFile" doesn\'t exist.');
 		}
 
 		oldMetadataFile = metadata.length == 0 ? null : '$metadata.${from.formatData.metaFileExtension}';
 		if (from.formatData.hasMetaFile == TRUE) {
 			if (oldMetadataFile == null) {
-				Sys.println('The format you\'re parsing from requires a metadata file, please specify one.');
-				return;
+				close('The format you\'re parsing from requires a metadata file, please specify one.');
 			}
 
 			if (!FileSystem.exists(oldMetadataFile)) {
-				Sys.println('The metadata file "$oldMetadataFile" doesn\'t exist.');
-				return;
+				close('The metadata file "$oldMetadataFile" doesn\'t exist.');
 			}
 		}
 
@@ -80,14 +74,12 @@ class Main {
 		var convertTo:String = waitForInput();
 
 		if (convertTo.length == 0) {
-			Sys.println('No format to convert to was specified.');
-			return;
+			close('No format to convert to was specified.');
 		}
 
 		to.formatData = FormatDetector.getFormatData(convertTo);
 		if (to.formatData == null) {
-			Sys.println('Format "$convertTo" doesn\'t exist.');
-			return;
+			close('Format "$convertTo" doesn\'t exist.');
 		}
 
 		// set the new file's extensions
@@ -99,11 +91,8 @@ class Main {
 		var difficulty:String = waitForInput();
 
 		if (difficulty.length == 0) {
-			Sys.println('No difficulty was specified.');
-			return;
+			close('No difficulty was specified.');
 		}
-
-		var errorOccured:Bool = false;
 
 		// finally start converting
 		try {
@@ -124,20 +113,20 @@ class Main {
 				Sys.println('Metadata saved! "$newMetadataFile"');
 			}
 
-		} catch(e:haxe.Exception) {
-			Sys.println('Error occured while processing chart:\n\n$e');
-			errorOccured = true;
-		}
-
-		// keep the window open for 2 seconds
-		// so that the user can see the possible error/file names
-		Sys.sleep(2);
-		if (errorOccured) Sys.exit(0);
+		} catch(e:haxe.Exception) Sys.println('Error occured while processing chart:\n\n$e');
+		
+		close();
 	}
 
 	inline static function waitForInput():String {
 		final input:String = Sys.stdin().readLine().toString();
 		Sys.println('');
 		return input;
+	}
+
+	static function close(?output:String) {
+		if (output != null) Sys.println(output);
+		Sys.sleep(5);
+		Sys.exit(0);
 	}
 }
