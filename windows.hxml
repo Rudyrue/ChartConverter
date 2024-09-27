@@ -3,7 +3,6 @@
 --cpp export
 --main Main
 -lib moonchart
--D PLATFORM=windows
 -D HAXE_OUTPUT_FILE=ChartConverter
 
 -D HXCPP_CHECK_POINTER

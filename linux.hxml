@@ -3,11 +3,8 @@
 --cpp export
 --main Main
 -lib moonchart
--D PLATFORM=linux
 -D HAXE_OUTPUT_FILE=ChartConverter
 
 -D HXCPP_CHECK_POINTER
 -D HXCPP_STACK_TRACE
 -D HXCPP_STACK_LINE
-
---cmd haxe --run MoveFile.hx
