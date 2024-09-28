@@ -77,10 +77,6 @@ class Main {
 			close('Format "$convertTo" doesn\'t exist.');
 		}
 
-		// set the new file's extensions
-		newChartFile += '.${to.formatData.extension}';
-		newMetadataFile += '.${to.formatData.metaFileExtension}';
-
 		// grab the difficulty
 		Sys.println('Difficulty:');
 		var difficulty:String = waitForInput();
@@ -88,6 +84,10 @@ class Main {
 		if (difficulty.length == 0) {
 			close('No difficulty was specified.');
 		}
+
+		// set the new file's extensions
+		newChartFile += '.${to.formatData.extension}';
+		newMetadataFile += '.${to.formatData.metaFileExtension}';
 
 		var errorOccured:Bool = false;
 
