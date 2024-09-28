@@ -62,7 +62,7 @@ class Main {
 			if (!FileSystem.exists(oldMetadataFile)) {
 				close('The metadata file "$oldMetadataFile" doesn\'t exist.');
 			}
-		}
+		} else oldMetadataFile = null;
 
 		// grab the format to convert to
 		Sys.println('Format to convert to:');
