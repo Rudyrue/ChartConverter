@@ -27,15 +27,19 @@ class Main {
 
 		// grab the chart
 		Sys.println('Chart file:');
-		var chart:String = waitForInput();
+		oldChartFile = waitForInput();
 
-		if (chart.length == 0) {
+		if (oldChartFile.length == 0) {
 			close('No chart file was specified.');
+		}
+
+		if (!FileSystem.exists(oldChartFile)) {
+			close('The chart file "$oldChartFile" doesn\'t exist.');
 		}
 
 		// grab the metadata
 		Sys.println('Metadata file: (leave blank if there\'s none)');
-		var metadata:String = waitForInput();
+		oldMetadataFile = waitForInput();
 
 		// grab the old format
 		Sys.println('Format to parse from:');
@@ -49,18 +53,9 @@ class Main {
 		if (from.formatData == null) {
 			close('Format "$parseFrom" doesn\'t exist.');
 		}
-
-		// do file checks after we grab the old format
-		// because of file extensions
-		oldChartFile = '$chart.${from.formatData.extension}';
 		
-		if (!FileSystem.exists(oldChartFile)) {
-			close('The chart file "$oldChartFile" doesn\'t exist.');
-		}
-
-		oldMetadataFile = metadata.length == 0 ? null : '$metadata.${from.formatData.metaFileExtension}';
 		if (from.formatData.hasMetaFile == TRUE) {
-			if (oldMetadataFile == null) {
+			if (oldMetadataFile.length == 0) {
 				close('The format you\'re parsing from requires a metadata file, please specify one.');
 			}
 
