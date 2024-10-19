@@ -99,27 +99,25 @@ class Main {
 			from.parser = Type.createInstance(from.formatData.handler, []).fromFile(oldChartFile, oldMetadataFile, difficulty);
 			to.parser = Type.createInstance(to.formatData.handler, []).fromFormat(from.parser, difficulty);
 
-			// reformatting json charts because holy SHIT
-			// discord decides to just
-			// render the entire line
-			// without stopping
-			var newChartContent:String = switch (to.formatData.extension) {
-				case 'json': Json.stringify(to.parser.data, "\t");
-				default: to.parser.stringify().data;
-			}
+			// using reflect instead
+			// because `parser`'s default type is `BasicFormat<{}, {}>`
+			// and not `BasicJsonFormat<D, M>`
 
-			var newMetadataContent:String = switch (to.formatData.metaFileExtension) {
-				case 'json': Json.stringify(to.parser.meta, "\t");
-				default: to.parser.stringify().meta;
-			}
+			// also setting the `formatting` var directly
+			// because `beautify` is basically inlined
+			// since it's both a getter and a setter inside of an abstract
+			// which is why you get the error `Invalid field:beautify` if you try setting it with reflect
+			if (to.formatData.extension == 'json') Reflect.setProperty(to.parser, 'formatting', "\t"); //to.parser.beautify = true;
+
+			final converted:FormatStringify = to.parser.stringify();
 
 			// save the chart
-			File.saveContent(newChartFile, newChartContent);
+			File.saveContent(newChartFile, converted.data);
 			Sys.println('Chart saved! "$newChartFile"');
 
 			// save the metadata if the format supports it
 			if (to.formatData.hasMetaFile == TRUE || to.formatData.hasMetaFile == POSSIBLE) {
-				File.saveContent(newMetadataFile, newMetadataContent);
+				File.saveContent(newMetadataFile, converted.meta);
 				Sys.println('Metadata saved! "$newMetadataFile"');
 			}
 
