@@ -10,7 +10,7 @@ using StringTools;
 
 typedef ChartFile = {
 	var ?formatData:FormatData;
-	var ?parser:BasicFormat<{}, {}>;
+	var ?parser:DynamicFormat;
 }
 
 class Main {
