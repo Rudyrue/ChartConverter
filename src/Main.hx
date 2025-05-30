@@ -42,9 +42,27 @@ class Main {
 		Sys.println('Metadata file: (leave blank if there\'s none)');
 		oldMetadataFile = waitForInput();
 
-		// grab the old format
-		Sys.println('Format to parse from:');
-		var parseFrom:String = waitForInput();
+		// detect the old format
+		var oldFormat:Null<String> = null;
+		try {
+			var files = [oldChartFile];
+			if (oldMetadataFile.length > 0)
+				files.push(oldMetadataFile);
+			oldFormat = FormatDetector.findFormat(files);
+		}
+
+		var parseFrom:String;
+		if (oldFormat == null) // request manual typing if not found
+		{
+			Sys.println('Format to parse from:');
+			parseFrom = waitForInput();
+		}
+		else // found a format, make sure its correct
+		{
+			Sys.println('Detected old format $oldFormat, write a another format if incorrect. (leave blank if correct)');
+			var input = waitForInput();
+			parseFrom = input.length > 0 ? input : oldFormat;
+		}
 
 		if (parseFrom.length == 0) {
 			close('No format to parse from was specified.');
@@ -86,40 +104,23 @@ class Main {
 			close('No difficulty was specified.');
 		}
 
-		// set the new file's extensions
-		newChartFile += '.${to.formatData.extension}';
-		newMetadataFile += '.${to.formatData.metaFileExtension}';
-
 		var errorOccured:Bool = false;
 
 		// finally start converting
 		try {
 			Sys.println('Converting...');
 
-			from.parser = Type.createInstance(from.formatData.handler, []).fromFile(oldChartFile, oldMetadataFile, difficulty);
-			to.parser = Type.createInstance(to.formatData.handler, []).fromFormat(from.parser, difficulty);
+			from.parser = Type.createInstance(from.formatData.handler, []);
+			to.parser = Type.createInstance(to.formatData.handler, []);
 
-			// using reflect instead
-			// because `parser`'s default type is `BasicFormat<{}, {}>`
-			// and not `BasicJsonFormat<D, M>`
+			from.parser.fromFile(oldChartFile, oldMetadataFile, difficulty);
+			to.parser.fromFormat(from.parser, difficulty);
 
-			// also setting the `formatting` var directly
-			// because `beautify` is basically inlined
-			// since it's both a getter and a setter inside of an abstract
-			// which is why you get the error `Invalid field:beautify` if you try setting it with reflect
-			if (to.formatData.extension == 'json') Reflect.setProperty(to.parser, 'formatting', "\t"); //to.parser.beautify = true;
+			if (to.formatData.extension == 'json')
+				cast(to.parser, BasicJsonFormat<Dynamic,Dynamic>).beautify = true;
 
-			final converted:FormatStringify = to.parser.stringify();
-
-			// save the chart
-			File.saveContent(newChartFile, converted.data);
+			to.parser.save(newChartFile, newMetadataFile);
 			Sys.println('Chart saved! "$newChartFile"');
-
-			// save the metadata if the format supports it
-			if (to.formatData.hasMetaFile == TRUE || to.formatData.hasMetaFile == POSSIBLE) {
-				File.saveContent(newMetadataFile, converted.meta);
-				Sys.println('Metadata saved! "$newMetadataFile"');
-			}
 
 		} catch(e:haxe.Exception) {
 			Sys.println('Error occured while processing chart:\n\n$e');
